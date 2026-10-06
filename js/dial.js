@@ -1,6 +1,6 @@
 /**
- * VAULT: The Haptic Heist — Dial Controller & Canvas Engine
- * High-DPI Canvas 2D, Pointer Events, Inertia Physics, Sweet Spot Tracking
+ * VAULT: The Haptic Heist — Dial Controller & Canvas Engine (v2.0)
+ * High-DPI Canvas 2D, Inertia Physics, Enhanced Industrial Visuals
  */
 
 class SafeDial {
@@ -23,20 +23,18 @@ class SafeDial {
     this.lastPointerAngle = 0;
     this.lastDivision = -1;
 
-    // Направление последнего движения (1: CW, -1: CCW, 0: idle)
+    // Направление движения (1: CW, -1: CCW, 0: idle)
     this.currentDirection = 0;
-    this.accumulatedRotation = 0; // Накопленный поворот в текущем направлении
 
     // Состояние штифта
-    this.targetPin = null; // Число 0..99
-    this.requiredDirection = 'CW'; // 'CW' или 'CCW'
+    this.targetPin = null;
+    this.requiredDirection = 'CW';
     this.holdStartTime = null;
-    this.isLocked = false; // Блокировка ввода (например, при анимации)
+    this.isLocked = false;
 
     // DOM-элементы отклика
     this.needleEl = document.getElementById('needle');
     this.progressBarEl = document.getElementById('holdRingFill');
-    this.centerCoreEl = document.getElementById('centerCore');
     this.CIRCUMFERENCE = 2 * Math.PI * 41; // 257.6
 
     // Колбэки
@@ -58,8 +56,7 @@ class SafeDial {
     window.addEventListener('pointerup', (e) => this.handlePointerUp(e));
     window.addEventListener('pointercancel', (e) => this.handlePointerUp(e));
 
-    // Анимационный луп для инерции и отрисовки
-    this.lastFrameTime = performance.now();
+    // Анимационный луп
     this.animate = this.animate.bind(this);
     requestAnimationFrame(this.animate);
   }
@@ -127,7 +124,7 @@ class SafeDial {
     const angle = this.getPointerAngle(e);
     let delta = angle - this.lastPointerAngle;
 
-    // Нормализация прыжка через разрез -180 / +180
+    // Нормализация прыжка через -180 / +180
     if (delta > 180) delta -= 360;
     if (delta < -180) delta += 360;
 
@@ -135,7 +132,7 @@ class SafeDial {
     this.currentAngle += delta;
     this.lastPointerAngle = angle;
 
-    // Определение направления вращения
+    // Направление вращения
     if (delta > 0.05) {
       this.currentDirection = 1; // CW
     } else if (delta < -0.05) {
@@ -183,8 +180,7 @@ class SafeDial {
     const isCorrectDir = (this.requiredDirection === 'CW' && this.currentDirection >= 0) ||
                          (this.requiredDirection === 'CCW' && this.currentDirection <= 0);
 
-    // Условие удержания: находимся в диапазоне целевого штифта, скорость мала
-    if (dist <= this.TOLERANCE_DIVISIONS && Math.abs(this.angularVelocity) < 1.2 && isCorrectDir) {
+    if (dist <= this.TOLERANCE_DIVISIONS && Math.abs(this.angularVelocity) < 1.4 && isCorrectDir) {
       if (!this.holdStartTime) {
         this.holdStartTime = performance.now();
       }
@@ -212,7 +208,6 @@ class SafeDial {
   }
 
   animate() {
-    // Инерционное вращение при отпускании пальца
     if (!this.isDragging && Math.abs(this.angularVelocity) > 0.05 && !this.isLocked) {
       this.currentAngle += this.angularVelocity;
       this.angularVelocity *= this.friction;
@@ -236,21 +231,21 @@ class SafeDial {
 
     this.ctx.clearRect(0, 0, w, h);
 
-    // 1. Внешняя металлическая фаска
+    // 1. Внешний корпус сейфа
     this.ctx.save();
     this.ctx.beginPath();
     this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#0F1318';
+    this.ctx.fillStyle = '#0E1217';
     this.ctx.fill();
-    this.ctx.lineWidth = 3;
-    this.ctx.strokeStyle = '#263140';
+    this.ctx.lineWidth = 3.5;
+    this.ctx.strokeStyle = '#2B3747';
     this.ctx.stroke();
 
-    // Градиентная тень фаски
-    const rimGrad = this.ctx.createRadialGradient(cx, cy, radius * 0.78, cx, cy, radius);
-    rimGrad.addColorStop(0, '#171E27');
-    rimGrad.addColorStop(0.85, '#0E131A');
-    rimGrad.addColorStop(1, '#050709');
+    // Градиентная фаска обода
+    const rimGrad = this.ctx.createRadialGradient(cx, cy, radius * 0.74, cx, cy, radius);
+    rimGrad.addColorStop(0, '#18212D');
+    rimGrad.addColorStop(0.7, '#10151C');
+    rimGrad.addColorStop(1, '#06080B');
     this.ctx.fillStyle = rimGrad;
     this.ctx.fill();
 
@@ -258,23 +253,34 @@ class SafeDial {
     this.ctx.translate(cx, cy);
     this.ctx.rotate((this.currentAngle * Math.PI) / 180);
 
-    // Подложка диска
+    // Лицевая поверхность диска (Текстура матированной оружейной стали)
     this.ctx.beginPath();
-    this.ctx.arc(0, 0, radius * 0.95, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#0C0F14';
+    this.ctx.arc(0, 0, radius * 0.94, 0, Math.PI * 2);
+    const faceGrad = this.ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 0.94);
+    faceGrad.addColorStop(0, '#161E28');
+    faceGrad.addColorStop(0.65, '#0E131A');
+    faceGrad.addColorStop(1, '#080A0E');
+    this.ctx.fillStyle = faceGrad;
     this.ctx.fill();
-    this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = '#1E2632';
+    this.ctx.lineWidth = 1.5;
+    this.ctx.strokeStyle = '#232D3B';
     this.ctx.stroke();
 
-    // 3. Насечки и оцифровка
+    // Внутренняя канавка
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, radius * 0.65, 0, Math.PI * 2);
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    this.ctx.stroke();
+
+    // 3. Насечки и цифры
     for (let i = 0; i < this.TOTAL_DIVISIONS; i++) {
       const rad = (i * this.DEG_PER_DIV * Math.PI) / 180;
       const isMajor = i % 10 === 0;
       const isMid = i % 5 === 0 && !isMajor;
 
-      const tickLen = isMajor ? 18 : (isMid ? 12 : 7);
-      const outerR = radius - 7;
+      const tickLen = isMajor ? 19 : (isMid ? 13 : 8);
+      const outerR = radius * 0.94 - 4;
       const innerR = outerR - tickLen;
 
       const x1 = Math.cos(rad) * outerR;
@@ -285,21 +291,21 @@ class SafeDial {
       this.ctx.beginPath();
       this.ctx.moveTo(x1, y1);
       this.ctx.lineTo(x2, y2);
-      this.ctx.lineWidth = isMajor ? 2.4 : 1.2;
-      this.ctx.strokeStyle = isMajor ? '#94A3B8' : (isMid ? '#4B596E' : '#232C38');
+      this.ctx.lineWidth = isMajor ? 2.4 : (isMid ? 1.6 : 1.1);
+      this.ctx.strokeStyle = isMajor ? '#E2E8F0' : (isMid ? '#64748B' : '#2D3748');
       this.ctx.stroke();
 
       // Оцифровка
       if (isMajor) {
-        const textR = innerR - 13;
+        const textR = innerR - 14;
         const tx = Math.cos(rad) * textR;
         const ty = Math.sin(rad) * textR;
 
         this.ctx.save();
         this.ctx.translate(tx, ty);
         this.ctx.rotate(rad + Math.PI / 2);
-        this.ctx.fillStyle = '#64748B';
-        this.ctx.font = '600 10px monospace';
+        this.ctx.fillStyle = '#94A3B8';
+        this.ctx.font = '700 11px "JetBrains Mono", monospace';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(i.toString().padStart(2, '0'), 0, 0);
