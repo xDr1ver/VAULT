@@ -402,16 +402,6 @@
           </div>
         </div>
 
-        <!-- Тема оформления сейфа -->
-        <div class="settings-group">
-          <div class="setting-group-title">ОБЛИК СЕЙФА</div>
-          <div class="theme-picker">
-            <div class="theme-chip active" data-theme="obsidian">Cyber Obsidian</div>
-            <div class="theme-chip" data-theme="gold">Syndicate Gold</div>
-            <div class="theme-chip" data-theme="emerald">Matrix Neon</div>
-          </div>
-        </div>
-
         <!-- Подсказка по взлому -->
         <div class="guide-card">
           <div class="guide-title">
@@ -499,11 +489,12 @@
 
         <div class="modal-actions">
           <button class="btn-modal-primary" id="btnModalRestart">ИГРАТЬ СНОВА</button>
-          <button class="btn-modal-story" id="btnModalStory">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7V17M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            ОПУБЛИКОВАТЬ В STORY
+          <button class="btn-modal-share" id="btnModalShare">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12V20C4 20.5 4.5 21 5 21H19C19.5 21 20 20.5 20 20V12M16 6L12 2M12 2L8 6M12 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>ПОДЕЛИТЬСЯ РЕКОРДОМ</span>
           </button>
-          <button class="btn-modal-secondary" id="btnModalShare">ОТПРАВИТЬ В ЧАТ</button>
         </div>
       </div>
     </div>
@@ -512,9 +503,6 @@
     <div class="tg-toast" id="tgToast">
       <span id="toastMsg">Успешно скопировано</span>
     </div>
-
-    <!-- Offscreen Canvas для Stories -->
-    <canvas id="storyCanvas" width="1080" height="1920" style="display: none;"></canvas>
 
   </div>
 

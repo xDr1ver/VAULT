@@ -35,7 +35,6 @@ class VaultGame {
     this.statPrecision = document.getElementById('statPrecision');
     this.statRank = document.getElementById('statRank');
     this.btnModalRestart = document.getElementById('btnModalRestart');
-    this.btnModalStory = document.getElementById('btnModalStory');
     this.btnModalShare = document.getElementById('btnModalShare');
 
     // Нативный тост
@@ -178,8 +177,7 @@ class VaultGame {
     this.btnCashout.addEventListener('click', () => this.handleCashout());
     this.btnReset.addEventListener('click', () => this.handleResetTumbler());
     this.btnModalRestart.addEventListener('click', () => this.startNewGame());
-    this.btnModalShare.addEventListener('click', () => this.handleShareChat());
-    this.btnModalStory.addEventListener('click', () => this.handleShareStory());
+    this.btnModalShare.addEventListener('click', () => this.handleShare());
 
     // Селектор ранга сверху — переход в настройки
     document.getElementById('rankSelector')?.addEventListener('click', () => {
@@ -196,6 +194,12 @@ class VaultGame {
     this.modalBackdrop.classList.remove('visible');
     document.body.classList.remove('shake');
     this.needleEl.classList.remove('locked');
+
+    // Сброс сейсмодатчика шума
+    this.dial?.resetNoise();
+    if (this.noiseFillEl) this.noiseFillEl.style.width = '0%';
+    if (this.noiseValEl) this.noiseValEl.innerText = '0%';
+    this.noiseMeterBar?.classList.remove('warning');
 
     if (customConfig) {
       this.pins = customConfig.pins || [40, 70, 20];
@@ -367,6 +371,10 @@ class VaultGame {
   handleResetTumbler() {
     if (this.isGameOver) return;
     window.AudioEngine?.playTick();
+    this.dial?.resetNoise();
+    if (this.noiseFillEl) this.noiseFillEl.style.width = '0%';
+    if (this.noiseValEl) this.noiseValEl.innerText = '0%';
+    this.noiseMeterBar?.classList.remove('warning');
     this.dial.setTarget(this.pins[this.currentStep], this.tiers[this.currentStep].dir, this.falseGates);
     this.updateStatusText('СУВАЛЬДА СБРОШЕНА. НАЧНИТЕ ЗАНОВО', 'var(--accent-amber)');
   }
@@ -375,23 +383,29 @@ class VaultGame {
   // МЕХАНИКА ШУМОМЕРА (NOISE METER) И ЛОЖНЫХ ПАЗОВ
   // =========================================================================
   handleNoiseUpdate(noise) {
-    if (!this.noiseEnabled || this.isGameOver) return;
+    if (!this.noiseEnabled) {
+      if (this.noiseFillEl) this.noiseFillEl.style.width = '0%';
+      if (this.noiseValEl) this.noiseValEl.innerText = '0%';
+      this.noiseMeterBar?.classList.remove('warning');
+      return;
+    }
 
+    const clamped = Math.max(0, Math.min(100, noise));
     if (this.noiseFillEl) {
-      this.noiseFillEl.style.width = `${Math.min(100, noise)}%`;
+      this.noiseFillEl.style.width = `${clamped}%`;
     }
     if (this.noiseValEl) {
-      this.noiseValEl.innerText = `${Math.round(noise)}%`;
+      this.noiseValEl.innerText = `${Math.round(clamped)}%`;
     }
 
-    if (noise > 70) {
+    if (clamped > 65) {
       this.noiseMeterBar?.classList.add('warning');
     } else {
       this.noiseMeterBar?.classList.remove('warning');
     }
 
-    // Если шум достиг 100% — срабатывает акустическая сирена
-    if (noise >= 100) {
+    // Если шум достиг 100% — срабатывает акустическая сирена (только при активной игре)
+    if (clamped >= 100 && !this.isGameOver) {
       window.AudioEngine?.playAlarmSiren();
       this.handleLockJam('Сейсмодатчик охраны зафиксировал резкий шум!');
     }
@@ -664,7 +678,7 @@ class VaultGame {
   }
 
   // =========================================================================
-  // НАСТРОЙКИ (SETTINGS & THEMES)
+  // НАСТРОЙКИ (SETTINGS)
   // =========================================================================
   bindSettingsControls() {
     const toggleHaptic = document.getElementById('toggleHaptic');
@@ -683,169 +697,47 @@ class VaultGame {
 
     toggleNoise?.addEventListener('change', (e) => {
       this.noiseEnabled = e.target.checked;
+      if (!this.noiseEnabled) {
+        if (this.noiseFillEl) this.noiseFillEl.style.width = '0%';
+        if (this.noiseValEl) this.noiseValEl.innerText = '0%';
+        this.noiseMeterBar?.classList.remove('warning');
+      }
       this.showToast(e.target.checked ? 'Сейсмодатчик активен' : 'Сейсмодатчик отключен');
     });
-
-    // Переключатель тем
-    const chips = document.querySelectorAll('.theme-picker .theme-chip');
-    chips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        chips.forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        const theme = chip.getAttribute('data-theme');
-        this.applyTheme(theme);
-      });
-    });
-  }
-
-  applyTheme(theme) {
-    window.Haptic?.tick();
-    const root = document.documentElement;
-
-    if (theme === 'gold') {
-      root.style.setProperty('--accent-cyan', '#F59E0B');
-      root.style.setProperty('--accent-amber', '#FCD34D');
-      this.showToast('Тема: Syndicate Gold');
-    } else if (theme === 'emerald') {
-      root.style.setProperty('--accent-cyan', '#10B981');
-      root.style.setProperty('--accent-amber', '#34D399');
-      this.showToast('Тема: Matrix Neon');
-    } else {
-      root.style.setProperty('--accent-cyan', '#38BDF8');
-      root.style.setProperty('--accent-amber', '#F59E0B');
-      this.showToast('Тема: Cyber Obsidian');
-    }
   }
 
   // =========================================================================
-  // ШЕРИНГ В TELEGRAM STORIES И ЧАТ
+  // ШЕРИНГ РЕКОРДА В TELEGRAM
   // =========================================================================
-  handleShareChat() {
-    const time = this.statTime.innerText;
-    const reward = this.modalReward.innerText;
-    const shareText = `🔓 Я только что взломал Сейф за ${time} и сорвал банк ${reward}!\nПопробуй повторить в @open_vault_bot`;
-
-    if (this.tg?.switchInlineQuery) {
-      this.tg.switchInlineQuery(shareText);
-    } else {
-      this.copyToClipboard(shareText, 'Результат скопирован! Отправь другу');
-    }
-  }
-
-  async handleShareStory() {
+  handleShare() {
     window.Haptic?.sweetSpot();
-    const canvas = document.getElementById('storyCanvas');
-    if (!canvas) return;
+    const time = this.statTime?.innerText || '18.4 с';
+    const reward = this.modalReward?.innerText || '$15,000 SAFE';
+    const rank = this.statRank?.innerText || 'Ghost S-Rank';
 
-    const ctx = canvas.getContext('2d');
-    const w = 1080;
-    const h = 1920;
-    canvas.width = w;
-    canvas.height = h;
+    const shareText = `🔓 Я только что взломал Сейф в VAULT за ${time} и сорвал куш ${reward} (Ранг: ${rank})!\nСможешь быстрее?`;
+    const shareUrl = 'https://t.me/open_vault_bot/play';
 
-    // 1. Градиентный кибер-фон
-    const bgGrad = ctx.createRadialGradient(w / 2, h * 0.35, 100, w / 2, h / 2, w);
-    bgGrad.addColorStop(0, '#1E293B');
-    bgGrad.addColorStop(0.4, '#0F172A');
-    bgGrad.addColorStop(1, '#020617');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // 2. Декоративные неоновые круги
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(w / 2, h * 0.42, 340, 0, Math.PI * 2);
-    ctx.lineWidth = 14;
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-    ctx.shadowColor = '#38BDF8';
-    ctx.shadowBlur = 40;
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(w / 2, h * 0.42, 280, 0, Math.PI * 2);
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
-    ctx.shadowColor = '#F59E0B';
-    ctx.shadowBlur = 30;
-    ctx.stroke();
-    ctx.restore();
-
-    // 3. Заголовки Story
-    ctx.save();
-    ctx.textAlign = 'center';
-
-    // Бренд
-    ctx.font = '800 36px "Inter", sans-serif';
-    ctx.fillStyle = '#38BDF8';
-    ctx.fillText('VAULT: THE HAPTIC HEIST', w / 2, 220);
-
-    // Главный трофей
-    ctx.font = '900 82px "Inter", sans-serif';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText('СЕЙФ РАСПАХНУТ!', w / 2, 330);
-
-    // Куш
-    ctx.font = '900 110px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#10B981';
-    ctx.shadowColor = '#10B981';
-    ctx.shadowBlur = 35;
-    ctx.fillText(this.lastWinData?.reward || '$15,000 SAFE', w / 2, h * 0.45);
-    ctx.restore();
-
-    // 4. Карточка статистики
-    ctx.save();
-    const cardY = h * 0.65;
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-    ctx.roundRect?.(w / 2 - 380, cardY, 760, 260, 36) || ctx.fillRect(w / 2 - 380, cardY, 760, 260);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.textAlign = 'center';
-    ctx.font = '700 34px "Inter", sans-serif';
-    ctx.fillStyle = '#94A3B8';
-    ctx.fillText('ВРЕМЯ ВЗЛОМА', w / 2 - 180, cardY + 80);
-    ctx.fillText('РАНГ', w / 2 + 180, cardY + 80);
-
-    ctx.font = '900 56px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#F59E0B';
-    ctx.fillText(this.lastWinData?.time || '18.4 с', w / 2 - 180, cardY + 160);
-
-    ctx.fillStyle = '#38BDF8';
-    ctx.fillText(this.lastWinData?.rank || 'S-Class', w / 2 + 180, cardY + 160);
-    ctx.restore();
-
-    // 5. Футер с призывом
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.font = '700 42px "Inter", sans-serif';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText('Сможешь быстрее? Сыграй сейчас:', w / 2, h * 0.88);
-    ctx.font = '800 48px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#38BDF8';
-    ctx.fillText('@open_vault_bot/play', w / 2, h * 0.92);
-    ctx.restore();
-
-    // 6. Вызов Telegram Bot API shareToStory
-    try {
-      if (typeof this.tg?.shareToStory === 'function') {
-        const dataUrl = canvas.toDataURL('image/png');
-        this.tg.shareToStory(dataUrl, {
-          text: 'Взломал сейф на скорость! @open_vault_bot',
-          widget_link: {
-            url: 'https://t.me/open_vault_bot/play',
-            name: 'Играть в VAULT'
-          }
-        });
+    // 1. Нативный Telegram Share URL (открывает окно выбора контакта в Telegram)
+    const tgShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+    if (this.tg?.openTelegramLink) {
+      try {
+        this.tg.openTelegramLink(tgShareUrl);
+        this.showToast('Открываем Telegram...');
         return;
-      }
-    } catch (e) {
-      console.warn('shareToStory failed or not supported:', e);
+      } catch (e) {}
     }
 
-    // Fallback: копируем вызов и информируем игрока
-    const shareText = `🔓 Я только что взломал Сейф за ${this.statTime.innerText} и сорвал банк ${this.modalReward.innerText}! https://t.me/open_vault_bot/play`;
-    this.copyToClipboard(shareText, 'Рекорд готов! Отправь друзьям в Telegram');
+    // 2. Инлайн запрос в чат
+    if (this.tg?.switchInlineQuery) {
+      try {
+        this.tg.switchInlineQuery(`${shareText} ${shareUrl}`);
+        return;
+      } catch (e) {}
+    }
+
+    // 3. Fallback: копирование в буфер обмена + тост
+    this.copyToClipboard(`${shareText}\n${shareUrl}`, 'Рекорд скопирован! Отправь друзьям в Telegram');
   }
 
   // =========================================================================

@@ -84,12 +84,18 @@ class SafeDial {
     this.draw();
   }
 
+  resetNoise() {
+    this.noiseLevel = 0;
+    if (this.onNoiseChanged) this.onNoiseChanged(0);
+  }
+
   setTarget(pinNumber, direction = 'CW', falseGates = []) {
     this.targetPin = pinNumber % this.TOTAL_DIVISIONS;
     this.requiredDirection = direction;
     this.falseGates = Array.isArray(falseGates) ? falseGates.map(p => p % this.TOTAL_DIVISIONS) : [];
     this.holdStartTime = null;
     this.resetHoldRing();
+    this.resetNoise();
   }
 
   getNormalizedValue() {
@@ -151,15 +157,15 @@ class SafeDial {
       this.currentDirection = -1; // CCW
     }
 
-    // Накопление шума при резком/быстром вращении
-    const jerk = Math.abs(delta);
-    if (jerk > 2.2) {
-      this.noiseLevel = Math.min(100, this.noiseLevel + jerk * 0.45);
+    // Накопление шума только при чрезмерно резком/агрессивном раскручивании диска
+    const speed = Math.abs(delta);
+    if (speed > 10.0) {
+      this.noiseLevel = Math.min(100, this.noiseLevel + (speed - 10.0) * 0.45);
       if (this.onNoiseChanged) this.onNoiseChanged(this.noiseLevel);
     }
 
     // Искры при высоком трении
-    if (jerk > 2.0) {
+    if (speed > 4.5) {
       this.spawnSparks(2);
     }
 
@@ -273,7 +279,7 @@ class SafeDial {
   animate() {
     // 1. Плавное затухание шума сейсмодатчика
     if (this.noiseLevel > 0) {
-      this.noiseLevel = Math.max(0, this.noiseLevel * 0.96 - 0.12);
+      this.noiseLevel = Math.max(0, this.noiseLevel * 0.92 - 0.45);
       if (this.onNoiseChanged) this.onNoiseChanged(this.noiseLevel);
     }
 
