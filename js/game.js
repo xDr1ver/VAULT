@@ -97,12 +97,11 @@ class VaultGame {
     });
 
     // 5. ИНИЦИАЛИЗАЦИЯ СИСТЕМ
+    window.game = this;
     this.initUserProfile();
     this.bindEvents();
     this.bindTabs();
-    this.bindBunkerControls();
     this.bindSettingsControls();
-    this.renderRaidsList();
 
     // Проверка Deep-Link (startapp=v_...)
     const deepLoaded = this.checkDeepLink();
@@ -140,9 +139,18 @@ class VaultGame {
     const screens = document.querySelectorAll('.screen-view');
 
     tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', (e) => {
         const targetId = tab.getAttribute('data-target');
         if (!targetId) return;
+
+        // Отключенные режимы ("Бункер", "Рейды") — показываем статус "Скоро"
+        if (tab.classList.contains('disabled')) {
+          e.preventDefault();
+          window.Haptic?.sweetSpot();
+          const title = tab.querySelector('.tab-title')?.innerText || 'Режим';
+          this.showToast(`🔒 Режим «${title}» в разработке (Скоро!)`);
+          return;
+        }
 
         window.Haptic?.selection();
 
@@ -163,11 +171,34 @@ class VaultGame {
         }
       });
     });
+
+    // Кнопки быстрого возврата из экранов "Скоро"
+    document.getElementById('btnReturnFromBunker')?.addEventListener('click', () => {
+      this.switchToTab('tabHeist');
+    });
+    document.getElementById('btnReturnFromRaids')?.addEventListener('click', () => {
+      this.switchToTab('tabHeist');
+    });
   }
 
   switchToTab(tabId) {
     const tab = document.getElementById(tabId);
-    if (tab) tab.click();
+    if (!tab) return;
+    const targetId = tab.getAttribute('data-target');
+    if (!targetId) return;
+
+    window.Haptic?.selection();
+    document.querySelectorAll('.tg-tab-bar .tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+    const activeScreen = document.getElementById(targetId);
+    if (activeScreen) {
+      activeScreen.classList.add('active');
+    }
+    if (targetId === 'screenHeist') {
+      setTimeout(() => this.dial?.resize(), 50);
+    }
   }
 
   // =========================================================================

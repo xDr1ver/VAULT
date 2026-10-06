@@ -25,11 +25,25 @@
         try { tg.lockOrientation(); } catch (e) {}
       }
 
+      function updateTelegramInsets() {
+        // Динамический расчет безопасного отступа под верхний бар Telegram и Pixel 9 Pro
+        const contentTop = (tg && tg.contentSafeAreaInset && tg.contentSafeAreaInset.top) || 0;
+        const safeTop = (tg && tg.safeAreaInset && tg.safeAreaInset.top) || 0;
+        const dynamicTop = contentTop > 0 ? contentTop + 8 : (safeTop > 0 ? safeTop + 58 : 0);
+        const finalTop = Math.max(dynamicTop, 122);
+        document.documentElement.style.setProperty('--tg-computed-top', `${finalTop}px`);
+      }
+
+      updateTelegramInsets();
+      tg?.onEvent?.('fullscreenChanged', updateTelegramInsets);
+      tg?.onEvent?.('viewportChanged', updateTelegramInsets);
+
       const ensureFullscreen = () => {
-        tg.expand();
-        if (typeof tg.requestFullscreen === 'function') {
+        tg?.expand?.();
+        if (typeof tg?.requestFullscreen === 'function') {
           try { tg.requestFullscreen(); } catch (e) {}
         }
+        updateTelegramInsets();
       };
       window.addEventListener('pointerdown', ensureFullscreen, { once: true, passive: true });
       window.addEventListener('touchstart', ensureFullscreen, { once: true, passive: true });
@@ -41,7 +55,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2.3.0">
 </head>
 <body>
   <div class="app-viewport">
@@ -220,123 +234,87 @@
     </section>
 
     <!-- =========================================================================
-         SCREEN 2: BUNKER (БУНКЕР / КОНСТРУКТОР СЕЙФА)
+         SCREEN 2: BUNKER (БУНКЕР / СКОРО В ИГРЕ)
          ========================================================================= -->
     <section class="screen-view" id="screenBunker">
       <div class="screen-scroll-wrap">
-        <div class="screen-header">
-          <div class="screen-badge">PVP ХРАНИЛИЩЕ</div>
-          <h1 class="screen-title">Твой Бункер</h1>
-          <p class="screen-desc">Собери свой сейф с секретными кодами и ловушками, спрячь банк SAFE и брось вызов другим игрокам.</p>
-        </div>
-
-        <!-- Статистика защиты -->
-        <div class="bunker-stats-grid">
-          <div class="b-stat-card">
-            <span class="b-stat-label">КУШ В СЕЙФЕ</span>
-            <span class="b-stat-val text-amber tabular-nums" id="bunkerPoolVal">$10,000 SAFE</span>
-          </div>
-          <div class="b-stat-card">
-            <span class="b-stat-label">ОТРАЖЕНО ВЗЛОМОВ</span>
-            <span class="b-stat-val text-emerald tabular-nums" id="bunkerDefendedCount">14 / 16</span>
-          </div>
-          <div class="b-stat-card">
-            <span class="b-stat-label">ВЗЯТО С ВОРОВ</span>
-            <span class="b-stat-val text-cyan tabular-nums" id="bunkerLootedVal">+$22,500</span>
-          </div>
-          <div class="b-stat-card">
-            <span class="b-stat-label">СТАТУС ЗАЩИТЫ</span>
-            <span class="b-stat-val text-emerald"><span class="pulse-dot"></span> В СЕТИ</span>
-          </div>
-        </div>
-
-        <!-- Конструктор 3 сувальд -->
-        <div class="bunker-builder-card">
-          <div class="builder-card-title">КОДОВАЯ КОМБИНАЦИЯ СЕЙФА</div>
-          
-          <div class="tumbler-config-row">
-            <div class="tumbler-cfg-label">
-              <span class="cfg-step-badge">1</span>
-              <span>Сувальда CW ↻</span>
-            </div>
-            <div class="tumbler-num-stepper">
-              <button class="step-btn" data-pin-idx="0" data-delta="-5">−5</button>
-              <button class="step-btn" data-pin-idx="0" data-delta="-1">−</button>
-              <span class="step-val tabular-nums" id="cfgPin0">42</span>
-              <button class="step-btn" data-pin-idx="0" data-delta="1">+</button>
-              <button class="step-btn" data-pin-idx="0" data-delta="5">+5</button>
+        <div class="soon-container">
+          <div class="soon-glow-ring">
+            <div class="soon-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" class="soon-icon">
+                <path d="M12 3L3 7.5V13.5C3 18.5 7 21 12 22C17 21 21 18.5 21 13.5V7.5L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              </svg>
             </div>
           </div>
-
-          <div class="tumbler-config-row">
-            <div class="tumbler-cfg-label">
-              <span class="cfg-step-badge">2</span>
-              <span>Сувальда CCW ↺</span>
+          <div class="soon-badge-tag">РЕЖИМ В РАЗРАБОТКЕ</div>
+          <h2 class="soon-title">Бункер Хранилища</h2>
+          <p class="soon-desc">
+            Строительство персонального сейфа с кастомными комбинациями сувальд и ложными пазами. Защищай свой пул SAFE от взломщиков.
+          </p>
+          <div class="soon-features">
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Кастомная калибровка сувальд сейфа</span>
             </div>
-            <div class="tumbler-num-stepper">
-              <button class="step-btn" data-pin-idx="1" data-delta="-5">−5</button>
-              <button class="step-btn" data-pin-idx="1" data-delta="-1">−</button>
-              <span class="step-val tabular-nums" id="cfgPin1">18</span>
-              <button class="step-btn" data-pin-idx="1" data-delta="1">+</button>
-              <button class="step-btn" data-pin-idx="1" data-delta="5">+5</button>
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Установка сейсмо-ловушек от воров</span>
             </div>
-          </div>
-
-          <div class="tumbler-config-row">
-            <div class="tumbler-cfg-label">
-              <span class="cfg-step-badge">3</span>
-              <span>Сувальда CW ↻</span>
-            </div>
-            <div class="tumbler-num-stepper">
-              <button class="step-btn" data-pin-idx="2" data-delta="-5">−5</button>
-              <button class="step-btn" data-pin-idx="2" data-delta="-1">−</button>
-              <span class="step-val tabular-nums" id="cfgPin2">73</span>
-              <button class="step-btn" data-pin-idx="2" data-delta="1">+</button>
-              <button class="step-btn" data-pin-idx="2" data-delta="5">+5</button>
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Пассивный доход SAFE при защите</span>
             </div>
           </div>
-
-          <!-- Ложные пазы (Ловушки) -->
-          <div class="trap-section">
-            <div class="trap-header">
-              <span>ЛОЖНЫЕ ПАЗЫ (DECOY TRAPS)</span>
-              <span class="trap-count-badge">2 Ловушки</span>
-            </div>
-            <div class="trap-chips">
-              <div class="trap-chip">Ловушка #1: <span class="tabular-nums" id="cfgTrap0">27</span></div>
-              <div class="trap-chip">Ловушка #2: <span class="tabular-nums" id="cfgTrap1">64</span></div>
-              <button class="btn-reroll-traps" id="btnRerollTraps">🎲 Сменить</button>
-            </div>
+          <div class="soon-eta-badge">
+            <span class="pulse-dot"></span>
+            <span>СКОРО В ОБНОВЛЕНИИ 2.3</span>
           </div>
-        </div>
-
-        <!-- Действия Бункера -->
-        <div class="bunker-actions">
-          <button class="btn-bunker-primary" id="btnShareBunker">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12V20C4 20.5 4.5 21 5 21H19C19.5 21 20 20.5 20 20V12M16 6L12 2M12 2L8 6M12 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>БРОСИТЬ ВЫЗОВ В TELEGRAM</span>
-          </button>
-          <div class="bunker-sub-actions">
-            <button class="btn-bunker-sub" id="btnCopyBunkerLink">Скопировать ссылку</button>
-            <button class="btn-bunker-sub" id="btnTestBunker">Проверить свой сейф</button>
-          </div>
+          <button class="btn-soon-return" id="btnReturnFromBunker">ВЕРНУТЬСЯ К ВЗЛОМУ</button>
         </div>
       </div>
     </section>
 
     <!-- =========================================================================
-         SCREEN 3: RAIDS (РЕЙДЫ СИНДИКАТОВ & ИГРОКОВ)
+         SCREEN 3: RAIDS (РЕЙДЫ СИНДИКАТА / СКОРО В ИГРЕ)
          ========================================================================= -->
     <section class="screen-view" id="screenRaids">
       <div class="screen-scroll-wrap">
-        <div class="screen-header">
-          <div class="screen-badge">ДОСКА ЗАКАЗОВ</div>
-          <h1 class="screen-title">Рейды Синдиката</h1>
-          <p class="screen-desc">Сорви банк с чужих хранилищ. Осторожно: ложные пазы и сейсмодатчик охраны активны.</p>
-        </div>
-
-        <div class="raids-list" id="raidsList">
-          <!-- Генерируется динамически через game.js -->
+        <div class="soon-container">
+          <div class="soon-glow-ring">
+            <div class="soon-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" class="soon-icon">
+                <path d="M17 21V19C17 16.8 15.2 15 13 15H7C4.8 15 3 16.8 3 19V21" stroke="currentColor" stroke-width="2"/>
+                <circle cx="10" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M21 21V19C21 17.3 19.9 15.8 18.3 15.2" stroke="currentColor" stroke-width="2"/>
+                <path d="M16 3.3C17.2 4.1 18 5.5 18 7C18 8.5 17.2 9.9 16 10.7" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+          <div class="soon-badge-tag">РЕЖИМ В РАЗРАБОТКЕ</div>
+          <h2 class="soon-title">Рейды Синдиката</h2>
+          <p class="soon-desc">
+            Асинхронные PvP-ограбления бункеров реальных игроков и синдикатные контракты на редкие сейфы с супер-кушами.
+          </p>
+          <div class="soon-features">
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Глобальная доска контрактов игроков</span>
+            </div>
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Синдикатные кланы и командные взломы</span>
+            </div>
+            <div class="soon-feat-item">
+              <span class="feat-dot"></span>
+              <span>Крупные призовые фонды в TON & SAFE</span>
+            </div>
+          </div>
+          <div class="soon-eta-badge">
+            <span class="pulse-dot"></span>
+            <span>СКОРО В ОБНОВЛЕНИИ 2.3</span>
+          </div>
+          <button class="btn-soon-return" id="btnReturnFromRaids">ВЕРНУТЬСЯ К ВЗЛОМУ</button>
         </div>
       </div>
     </section>
@@ -431,7 +409,8 @@
         <span class="tab-title">Взлом</span>
       </div>
 
-      <div class="tab-item" id="tabBunker" data-target="screenBunker">
+      <div class="tab-item disabled" id="tabBunker" data-target="screenBunker">
+        <span class="tab-badge-soon">СКОРО</span>
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <path d="M12 3L3 7.5V13.5C3 18.5 7 21 12 22C17 21 21 18.5 21 13.5V7.5L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -441,7 +420,8 @@
         <span class="tab-title">Бункер</span>
       </div>
 
-      <div class="tab-item" id="tabRaids" data-target="screenRaids">
+      <div class="tab-item disabled" id="tabRaids" data-target="screenRaids">
+        <span class="tab-badge-soon">СКОРО</span>
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <path d="M17 21V19C17 16.8 15.2 15 13 15H7C4.8 15 3 16.8 3 19V21" stroke="currentColor" stroke-width="2"/>
@@ -507,9 +487,9 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/audio.js"></script>
-  <script src="js/haptic.js"></script>
-  <script src="js/dial.js"></script>
-  <script src="js/game.js"></script>
+  <script src="js/audio.js?v=2.3.0"></script>
+  <script src="js/haptic.js?v=2.3.0"></script>
+  <script src="js/dial.js?v=2.3.0"></script>
+  <script src="js/game.js?v=2.3.0"></script>
 </body>
 </html>
