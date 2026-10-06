@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>VAULT: The Haptic Heist</title>
+  
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-viewport">
+    
+    <!-- 1. HEADER HUD: Safe Area Compliant -->
+    <header class="hud-header">
+      <!-- Таймер сессии -->
+      <div class="hud-card timer-card">
+        <span class="hud-label">ВРЕМЯ</span>
+        <div class="timer-wrapper">
+          <svg class="hud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3 3"/>
+          </svg>
+          <span class="hud-value tabular-nums" id="sessionTimer">45.00</span>
+        </div>
+      </div>
+
+      <!-- Сувальды (3 замка) -->
+      <div class="hud-card tumblers-card">
+        <span class="hud-label">СУВАЛЬДЫ</span>
+        <div class="tumblers-group" id="tumblersGroup">
+          <div class="tumbler-slot active" data-index="0" id="slot0">
+            <span class="tumbler-dir">CW ↻</span>
+            <span class="tumbler-icon">●</span>
+          </div>
+          <div class="tumbler-slot locked" data-index="1" id="slot1">
+            <span class="tumbler-dir">CCW ↺</span>
+            <span class="tumbler-icon">🔒</span>
+          </div>
+          <div class="tumbler-slot locked" data-index="2" id="slot2">
+            <span class="tumbler-dir">CW ↻</span>
+            <span class="tumbler-icon">🔒</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Текущий куш / Множитель -->
+      <div class="hud-card stake-card">
+        <span class="hud-label">КУШ</span>
+        <div class="stake-wrapper">
+          <span class="stake-multiplier" id="stakeMult">x1.5</span>
+          <span class="hud-value tabular-nums" id="stakeAmount">$1,500</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. WORKSPACE: Natural Thumb Zone -->
+    <main class="vault-workspace" id="workspace">
+      <!-- Неподвижный указатель (Стрелка-индикатор) -->
+      <div class="needle-indicator" id="needle">
+        <div class="needle-head"></div>
+        <div class="needle-glow"></div>
+      </div>
+
+      <!-- Canvas Диска Сейфа -->
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="vaultCanvas"></canvas>
+
+        <!-- Центральный керн с SVG кольцом удержания -->
+        <div class="center-cap" id="centerCap">
+          <svg class="progress-ring" viewBox="0 0 92 92">
+            <circle class="ring-track" cx="46" cy="46" r="41" />
+            <circle class="ring-fill" id="holdRingFill" cx="46" cy="46" r="41" />
+          </svg>
+          <div class="center-core" id="centerCore">
+            <span class="core-icon" id="coreIcon">●</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Информационная плашка статуса -->
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot"></span>
+        <span class="status-text" id="statusText">ВРАЩАЙТЕ ПО ЧАСОВОЙ СТРЕЛКЕ (CW)</span>
+      </div>
+    </main>
+
+    <!-- 3. FOOTER CONTROLS: One-Hand Action Zone -->
+    <footer class="action-footer">
+      <button class="btn-tool-reset" id="btnReset" title="Сбросить текущий шаг" aria-label="Сбросить">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
+
+      <button class="btn-cashout-primary" id="btnCashout">
+        <span class="cashout-label">ЗАБРАТЬ КУШ</span>
+        <span class="cashout-amount tabular-nums" id="cashoutAmount">$1,500 SAFE</span>
+      </button>
+    </footer>
+
+    <!-- 4. MODAL OVERLAY: Victory & Defeat -->
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal-card" id="modalCard">
+        <div class="modal-badge" id="modalBadge">ВЗЛОМАНО</div>
+        <h2 class="modal-title" id="modalTitle">СЕЙФ РАСПАХНУТ!</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Твой выигрыш: <span class="modal-highlight" id="modalReward">$15,000 SAFE</span></p>
+
+        <div class="modal-stats">
+          <div class="stat-row">
+            <span class="stat-name">Время взлома:</span>
+            <span class="stat-val tabular-nums" id="statTime">18.4 с</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Точность нащупывания:</span>
+            <span class="stat-val" id="statPrecision">98.2%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Ранг взломщика:</span>
+            <span class="stat-val" id="statRank">S-Class Ghost</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-primary" id="btnModalRestart">ИГРАТЬ СНОВА</button>
+          <button class="btn-modal-secondary" id="btnModalShare">ПОДЕЛИТЬСЯ РЕКОРДОМ</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/haptic.js"></script>
+  <script src="js/dial.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
