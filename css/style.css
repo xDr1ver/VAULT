@@ -784,6 +784,28 @@ canvas#vaultCanvas:active {
   transform: scale(0.98);
 }
 
+.btn-modal-story {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+  border: none;
+  font-size: 14px;
+  font-weight: 800;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-modal-story:active {
+  transform: scale(0.98);
+}
+
 .btn-modal-secondary {
   width: 100%;
   height: 44px;
@@ -798,6 +820,811 @@ canvas#vaultCanvas:active {
 
 .btn-modal-secondary:active {
   background: rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================================================
+   7. NOISE METER GAUGE (СЕЙСМОДАТЧИК ШУМА)
+   ========================================================================== */
+.noise-meter-bar {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(14, 20, 30, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px 7px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.noise-meter-bar.warning {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+  background: rgba(35, 12, 16, 0.85);
+}
+
+.noise-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.noise-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.noise-pulse-icon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 6px var(--accent-emerald);
+  transition: all 0.15s ease;
+}
+
+.noise-meter-bar.warning .noise-pulse-icon {
+  background: var(--accent-crimson);
+  box-shadow: 0 0 10px var(--accent-crimson);
+  animation: pulse-danger 0.5s infinite alternate;
+}
+
+@keyframes pulse-danger {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 1; }
+}
+
+.noise-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.noise-meter-bar.warning .noise-val {
+  color: var(--accent-crimson);
+}
+
+.noise-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.noise-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #10B981 0%, #F59E0B 65%, #EF4444 100%);
+  transition: width 0.08s ease-out;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+/* ==========================================================================
+   8. TAB SCREENS ARCHITECTURE (MIRA STYLE MULTI-VIEW)
+   ========================================================================== */
+.screen-view {
+  display: none;
+  width: 100%;
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  max-width: 440px;
+}
+
+.screen-view.active {
+  display: flex;
+  animation: fadeInView 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInView {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen-scroll-wrap {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  padding-top: 4px;
+}
+
+.screen-scroll-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+/* Screen Headers */
+.screen-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.screen-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.screen-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.screen-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  max-width: 90%;
+}
+
+/* ==========================================================================
+   9. BUNKER SCREEN (КОНСТРУКТОР СЕЙФА & ЗАЩИТА)
+   ========================================================================== */
+.bunker-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.b-stat-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.b-stat-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.b-stat-val {
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.text-amber { color: var(--accent-amber); }
+.text-emerald { color: var(--accent-emerald); }
+.text-cyan { color: var(--accent-cyan); }
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+}
+
+.bunker-builder-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.builder-card-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.tumbler-config-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(10, 15, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+}
+
+.tumbler-cfg-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.cfg-step-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tumbler-num-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+}
+
+.step-btn:active {
+  transform: scale(0.92);
+  background: rgba(56, 189, 248, 0.25);
+  border-color: var(--accent-cyan);
+}
+
+.step-val {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 30px;
+  text-align: center;
+  color: var(--accent-amber);
+}
+
+.trap-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.trap-count-badge {
+  color: var(--accent-crimson);
+  font-weight: 800;
+}
+
+.trap-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trap-chip {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 12px;
+  font-weight: 600;
+  color: #FCA5A5;
+}
+
+.trap-chip span {
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.btn-reroll-traps {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-reroll-traps:active {
+  transform: scale(0.95);
+}
+
+.bunker-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn-bunker-primary {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+  border: none;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+
+.btn-bunker-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.bunker-sub-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-bunker-sub {
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-bunker-sub:active {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   10. RAIDS SCREEN (ДОСКА ЗАКАЗОВ)
+   ========================================================================== */
+.raids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.raid-card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.raid-card:active {
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.raid-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.raid-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.raid-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.raid-card-author {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.raid-diff-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.diff-easy {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--accent-emerald);
+}
+
+.diff-medium {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--accent-amber);
+}
+
+.diff-hard {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: var(--accent-crimson);
+}
+
+.raid-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.raid-reward-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.raid-reward-lbl {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.raid-reward-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--accent-emerald);
+}
+
+.btn-raid-launch {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: none;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  transition: all 0.12s;
+}
+
+.btn-raid-launch:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   11. SETTINGS & PROFILE SCREEN
+   ========================================================================== */
+.profile-card {
+  width: 100%;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+}
+
+.profile-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.profile-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.profile-balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.prof-bal-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.prof-bal-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--accent-emerald);
+}
+
+.settings-group {
+  width: 100%;
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-group-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.setting-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.setting-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Telegram Native Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: 34px;
+  transition: 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--accent-cyan);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(18px);
+}
+
+/* Theme Picker */
+.theme-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.theme-chip {
+  padding: 8px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.theme-chip.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+/* Guide Card */
+.guide-card {
+  width: 100%;
+  background: rgba(14, 20, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--accent-amber);
+}
+
+.guide-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.guide-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 0;
+}
+
+.guide-list li {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  position: relative;
+  padding-left: 14px;
+}
+
+.guide-list li::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  color: var(--accent-amber);
+  font-size: 14px;
+}
+
+/* ==========================================================================
+   12. NATIVE TELEGRAM TOAST NOTIFICATION
+   ========================================================================== */
+.tg-toast {
+  position: fixed;
+  top: max(calc(env(safe-area-inset-top, 0px) + 12px), 20px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(18, 25, 38, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.25), opacity 0.28s ease;
+}
+
+.tg-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
 /* Shake Animation */

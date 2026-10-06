@@ -7,6 +7,7 @@ class ProceduralAudioEngine {
   constructor() {
     this.ctx = null;
     this.isUnlocked = false;
+    this.enabled = true;
   }
 
   /**
@@ -34,7 +35,7 @@ class ProceduralAudioEngine {
    * Длительность: 12-16 мс
    */
   playTick() {
-    if (!this.ctx || !this.isUnlocked) return;
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
     const t = this.ctx.currentTime;
 
     // 1. Короткий шумовой импульс (White Noise Buffer 4ms)
@@ -71,7 +72,7 @@ class ProceduralAudioEngine {
    * Двухслойный звук: высокий металлический щелчок + глухой саб-резонанс
    */
   playSweetSpotTick() {
-    if (!this.ctx || !this.isUnlocked) return;
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
     const t = this.ctx.currentTime;
 
     // Слой 1: Высокий металлический щелчок (2400 Hz -> 800 Hz)
@@ -110,7 +111,7 @@ class ProceduralAudioEngine {
    * Тяжелый металлический лязг соскакивания блокиратора
    */
   playTumblerLock() {
-    if (!this.ctx || !this.isUnlocked) return;
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
     const t = this.ctx.currentTime;
 
     const osc = this.ctx.createOscillator();
@@ -132,7 +133,7 @@ class ProceduralAudioEngine {
    * Финал: Полное распахивание сейфа (Success Chord)
    */
   playUnlockChord() {
-    if (!this.ctx || !this.isUnlocked) return;
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
     const baseFreqs = [261.63, 329.63, 392.00, 523.25]; // C-major chord
     baseFreqs.forEach((freq, idx) => {
       const t = this.ctx.currentTime + idx * 0.05;
@@ -154,7 +155,7 @@ class ProceduralAudioEngine {
    * Тревога / Срыв замка (Alarm / Jam Buzz)
    */
   playLockJam() {
-    if (!this.ctx || !this.isUnlocked) return;
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
     const t = this.ctx.currentTime;
 
     const osc = this.ctx.createOscillator();
@@ -170,6 +171,51 @@ class ProceduralAudioEngine {
     gain.connect(this.ctx.destination);
     osc.start(t);
     osc.stop(t + 0.25);
+  }
+
+  /**
+   * Ложный паз (False Gate): сухой пустотелый звон без саб-резонанса
+   */
+  playFalseGate() {
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(750, t);
+    osc.frequency.exponentialRampToValueAtTime(320, t + 0.035);
+
+    gain.gain.setValueAtTime(0.28, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.04);
+  }
+
+  /**
+   * Сработка акустического датчика (Сирена перегрузки шума)
+   */
+  playAlarmSiren() {
+    if (!this.ctx || !this.isUnlocked || !this.enabled) return;
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, t);
+    osc.frequency.linearRampToValueAtTime(850, t + 0.12);
+    osc.frequency.linearRampToValueAtTime(450, t + 0.25);
+
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.35);
   }
 }
 

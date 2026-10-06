@@ -48,16 +48,16 @@
 
     <!-- 1. NATIVE TELEGRAM TOP PILL BAR (СТИЛЬ MIRA) -->
     <div class="tg-top-bar">
-      <!-- Селектор ранга -->
+      <!-- Селектор ранга / Профиль -->
       <div class="tg-pill rank-pill" id="rankSelector">
         <span class="pill-dot"></span>
-        <span class="pill-text">Ghost S-Rank</span>
+        <span class="pill-text" id="topRankText">Ghost S-Rank</span>
         <svg class="pill-arrow" viewBox="0 0 12 12" fill="none">
           <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </div>
 
-      <!-- Баланс отмычек / Энергия -->
+      <!-- Баланс SAFE / Энергия отмычек -->
       <div class="tg-pill energy-pill" id="energyBadge">
         <svg class="energy-icon" viewBox="0 0 16 16" fill="none">
           <path d="M9 1.5L2.5 9H8L7 14.5L13.5 7H8L9 1.5Z" fill="url(#energyGrad)" stroke="none"/>
@@ -68,141 +68,369 @@
             </linearGradient>
           </defs>
         </svg>
-        <span class="energy-text tabular-nums">3/3 Отмычки</span>
+        <span class="energy-text tabular-nums" id="topBalanceText">$24,500 SAFE</span>
       </div>
     </div>
 
-    <!-- 2. HEADER HUD: FROSTED GLASS CARDS (СТИЛЬ MIRA) -->
-    <header class="hud-header">
-      <!-- Таймер сессии -->
-      <div class="hud-card timer-card">
-        <span class="hud-label">ТАЙМЕР</span>
-        <div class="timer-wrapper">
-          <svg class="hud-icon cyber-timer-icon" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" stroke-opacity="0.25"/>
-            <path d="M12 3 A9 9 0 0 1 21 12" stroke="var(--accent-cyan)" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M12 7V12L15 14" stroke="var(--accent-cyan)" stroke-width="2.2" stroke-linecap="round"/>
-            <circle cx="12" cy="12" r="1.5" fill="var(--accent-cyan)"/>
-          </svg>
-          <span class="hud-value tabular-nums" id="sessionTimer">45.00</span>
-        </div>
-      </div>
-
-      <!-- Сувальды (3 замка) -->
-      <div class="hud-card tumblers-card">
-        <span class="hud-label">СУВАЛЬДЫ</span>
-        <div class="tumblers-group" id="tumblersGroup">
-          
-          <!-- Slot 0 -->
-          <div class="tumbler-slot active" data-index="0" id="slot0">
-            <span class="tumbler-dir">CW ↻</span>
-            <div class="tumbler-icon">
-              <svg class="icon-svg active-pulse" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/>
-                <circle cx="10" cy="10" r="3.5" fill="currentColor"/>
-                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Slot 1 -->
-          <div class="tumbler-slot locked" data-index="1" id="slot1">
-            <span class="tumbler-dir">CCW ↺</span>
-            <div class="tumbler-icon">
-              <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
-                <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Slot 2 -->
-          <div class="tumbler-slot locked" data-index="2" id="slot2">
-            <span class="tumbler-dir">CW ↻</span>
-            <div class="tumbler-icon">
-              <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
-                <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
-              </svg>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Текущий куш / Множитель -->
-      <div class="hud-card stake-card">
-        <span class="hud-label">БАНК</span>
-        <div class="stake-wrapper">
-          <span class="stake-multiplier" id="stakeMult">x1.5</span>
-          <span class="hud-value tabular-nums" id="stakeAmount">$1,500</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- 3. WORKSPACE: 3D VOLUMETRIC VAULT DIAL -->
-    <main class="vault-workspace" id="workspace">
-      <!-- Неподвижный указатель с объемным свечением -->
-      <div class="needle-indicator" id="needle">
-        <div class="needle-head"></div>
-        <div class="needle-glow"></div>
-      </div>
-
-      <!-- 3D Canvas Контейнер -->
-      <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="vaultCanvas"></canvas>
-
-        <!-- Центральный керн с SVG кольцом прогресса -->
-        <div class="center-cap" id="centerCap">
-          <svg class="progress-ring" viewBox="0 0 100 100">
-            <circle class="ring-track" cx="50" cy="50" r="43" />
-            <circle class="ring-fill" id="holdRingFill" cx="50" cy="50" r="43" />
-          </svg>
-          <div class="center-core" id="centerCore">
-            <svg class="biometric-icon" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3"/>
-              <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
-              <path d="M12 2V5M12 19V22M2 12H5M19 12H22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    <!-- =========================================================================
+         SCREEN 1: HEIST (ВЗЛОМ СЕЙФА)
+         ========================================================================= -->
+    <section class="screen-view active" id="screenHeist">
+      <!-- 2. HEADER HUD: FROSTED GLASS CARDS -->
+      <header class="hud-header">
+        <!-- Таймер сессии -->
+        <div class="hud-card timer-card">
+          <span class="hud-label">ТАЙМЕР</span>
+          <div class="timer-wrapper">
+            <svg class="hud-icon cyber-timer-icon" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" stroke-opacity="0.25"/>
+              <path d="M12 3 A9 9 0 0 1 21 12" stroke="var(--accent-cyan)" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M12 7V12L15 14" stroke="var(--accent-cyan)" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="1.5" fill="var(--accent-cyan)"/>
             </svg>
+            <span class="hud-value tabular-nums" id="sessionTimer">45.00</span>
+          </div>
+        </div>
+
+        <!-- Сувальды (3 замка) -->
+        <div class="hud-card tumblers-card">
+          <span class="hud-label">СУВАЛЬДЫ</span>
+          <div class="tumblers-group" id="tumblersGroup">
+            
+            <!-- Slot 0 -->
+            <div class="tumbler-slot active" data-index="0" id="slot0">
+              <span class="tumbler-dir">CW ↻</span>
+              <div class="tumbler-icon">
+                <svg class="icon-svg active-pulse" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/>
+                  <circle cx="10" cy="10" r="3.5" fill="currentColor"/>
+                  <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Slot 1 -->
+            <div class="tumbler-slot locked" data-index="1" id="slot1">
+              <span class="tumbler-dir">CCW ↺</span>
+              <div class="tumbler-icon">
+                <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
+                  <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Slot 2 -->
+            <div class="tumbler-slot locked" data-index="2" id="slot2">
+              <span class="tumbler-dir">CW ↻</span>
+              <div class="tumbler-icon">
+                <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
+                  <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Текущий куш / Множитель -->
+        <div class="hud-card stake-card">
+          <span class="hud-label">БАНК</span>
+          <div class="stake-wrapper">
+            <span class="stake-multiplier" id="stakeMult">x1.5</span>
+            <span class="hud-value tabular-nums" id="stakeAmount">$1,500</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ШУМОМЕР (СЕЙСМОДАТЧИК ШУМА) -->
+      <div class="noise-meter-bar" id="noiseMeterBar">
+        <div class="noise-meta">
+          <div class="noise-label">
+            <span class="noise-pulse-icon" id="noiseIcon"></span>
+            <span>СЕЙСМОДАТЧИК ШУМА</span>
+          </div>
+          <span class="noise-val tabular-nums" id="noiseVal">0%</span>
+        </div>
+        <div class="noise-track">
+          <div class="noise-fill" id="noiseFill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- 3. WORKSPACE: 3D VOLUMETRIC VAULT DIAL -->
+      <main class="vault-workspace" id="workspace">
+        <!-- Неподвижный указатель с объемным свечением -->
+        <div class="needle-indicator" id="needle">
+          <div class="needle-head"></div>
+          <div class="needle-glow"></div>
+        </div>
+
+        <!-- 3D Canvas Контейнер -->
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="vaultCanvas"></canvas>
+
+          <!-- Центральный керн с SVG кольцом прогресса -->
+          <div class="center-cap" id="centerCap">
+            <svg class="progress-ring" viewBox="0 0 100 100">
+              <circle class="ring-track" cx="50" cy="50" r="43" />
+              <circle class="ring-fill" id="holdRingFill" cx="50" cy="50" r="43" />
+            </svg>
+            <div class="center-core" id="centerCore">
+              <svg class="biometric-icon" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 3"/>
+                <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+                <path d="M12 2V5M12 19V22M2 12H5M19 12H22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Статусная плашка -->
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusText">ВРАЩАЙТЕ ПО ЧАСОВОЙ СТРЕЛКЕ (CW ↻)</span>
+        </div>
+      </main>
+
+      <!-- 4. CONTROLS: MIRA STYLE PRIMARY ACTION -->
+      <div class="action-footer">
+        <button class="btn-tool-reset" id="btnReset" title="Сбросить шаг" aria-label="Сбросить">
+          <svg viewBox="0 0 24 24" fill="none" class="action-icon">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" stroke-opacity="0.3"/>
+            <path d="M2.5 12C2.5 6.75 6.75 2.5 12 2.5C16.2 2.5 19.8 5.2 21 9M21 4V9H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <button class="btn-cashout-primary" id="btnCashout">
+          <div class="cashout-left">
+            <svg class="cashout-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M19 11H5C3.9 11 3 11.9 3 13V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V13C21 11.9 20.1 11 19 11Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 11V7C7 4.2 9.2 2 12 2C14.8 2 17 4.2 17 7V11" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="16.5" r="1.5" fill="currentColor"/>
+            </svg>
+            <span class="cashout-label">ЗАБРАТЬ КУШ</span>
+          </div>
+          <span class="cashout-amount tabular-nums" id="cashoutAmount">$1,500 SAFE</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 2: BUNKER (БУНКЕР / КОНСТРУКТОР СЕЙФА)
+         ========================================================================= -->
+    <section class="screen-view" id="screenBunker">
+      <div class="screen-scroll-wrap">
+        <div class="screen-header">
+          <div class="screen-badge">PVP ХРАНИЛИЩЕ</div>
+          <h1 class="screen-title">Твой Бункер</h1>
+          <p class="screen-desc">Собери свой сейф с секретными кодами и ловушками, спрячь банк SAFE и брось вызов другим игрокам.</p>
+        </div>
+
+        <!-- Статистика защиты -->
+        <div class="bunker-stats-grid">
+          <div class="b-stat-card">
+            <span class="b-stat-label">КУШ В СЕЙФЕ</span>
+            <span class="b-stat-val text-amber tabular-nums" id="bunkerPoolVal">$10,000 SAFE</span>
+          </div>
+          <div class="b-stat-card">
+            <span class="b-stat-label">ОТРАЖЕНО ВЗЛОМОВ</span>
+            <span class="b-stat-val text-emerald tabular-nums" id="bunkerDefendedCount">14 / 16</span>
+          </div>
+          <div class="b-stat-card">
+            <span class="b-stat-label">ВЗЯТО С ВОРОВ</span>
+            <span class="b-stat-val text-cyan tabular-nums" id="bunkerLootedVal">+$22,500</span>
+          </div>
+          <div class="b-stat-card">
+            <span class="b-stat-label">СТАТУС ЗАЩИТЫ</span>
+            <span class="b-stat-val text-emerald"><span class="pulse-dot"></span> В СЕТИ</span>
+          </div>
+        </div>
+
+        <!-- Конструктор 3 сувальд -->
+        <div class="bunker-builder-card">
+          <div class="builder-card-title">КОДОВАЯ КОМБИНАЦИЯ СЕЙФА</div>
+          
+          <div class="tumbler-config-row">
+            <div class="tumbler-cfg-label">
+              <span class="cfg-step-badge">1</span>
+              <span>Сувальда CW ↻</span>
+            </div>
+            <div class="tumbler-num-stepper">
+              <button class="step-btn" data-pin-idx="0" data-delta="-5">−5</button>
+              <button class="step-btn" data-pin-idx="0" data-delta="-1">−</button>
+              <span class="step-val tabular-nums" id="cfgPin0">42</span>
+              <button class="step-btn" data-pin-idx="0" data-delta="1">+</button>
+              <button class="step-btn" data-pin-idx="0" data-delta="5">+5</button>
+            </div>
+          </div>
+
+          <div class="tumbler-config-row">
+            <div class="tumbler-cfg-label">
+              <span class="cfg-step-badge">2</span>
+              <span>Сувальда CCW ↺</span>
+            </div>
+            <div class="tumbler-num-stepper">
+              <button class="step-btn" data-pin-idx="1" data-delta="-5">−5</button>
+              <button class="step-btn" data-pin-idx="1" data-delta="-1">−</button>
+              <span class="step-val tabular-nums" id="cfgPin1">18</span>
+              <button class="step-btn" data-pin-idx="1" data-delta="1">+</button>
+              <button class="step-btn" data-pin-idx="1" data-delta="5">+5</button>
+            </div>
+          </div>
+
+          <div class="tumbler-config-row">
+            <div class="tumbler-cfg-label">
+              <span class="cfg-step-badge">3</span>
+              <span>Сувальда CW ↻</span>
+            </div>
+            <div class="tumbler-num-stepper">
+              <button class="step-btn" data-pin-idx="2" data-delta="-5">−5</button>
+              <button class="step-btn" data-pin-idx="2" data-delta="-1">−</button>
+              <span class="step-val tabular-nums" id="cfgPin2">73</span>
+              <button class="step-btn" data-pin-idx="2" data-delta="1">+</button>
+              <button class="step-btn" data-pin-idx="2" data-delta="5">+5</button>
+            </div>
+          </div>
+
+          <!-- Ложные пазы (Ловушки) -->
+          <div class="trap-section">
+            <div class="trap-header">
+              <span>ЛОЖНЫЕ ПАЗЫ (DECOY TRAPS)</span>
+              <span class="trap-count-badge">2 Ловушки</span>
+            </div>
+            <div class="trap-chips">
+              <div class="trap-chip">Ловушка #1: <span class="tabular-nums" id="cfgTrap0">27</span></div>
+              <div class="trap-chip">Ловушка #2: <span class="tabular-nums" id="cfgTrap1">64</span></div>
+              <button class="btn-reroll-traps" id="btnRerollTraps">🎲 Сменить</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Действия Бункера -->
+        <div class="bunker-actions">
+          <button class="btn-bunker-primary" id="btnShareBunker">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12V20C4 20.5 4.5 21 5 21H19C19.5 21 20 20.5 20 20V12M16 6L12 2M12 2L8 6M12 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>БРОСИТЬ ВЫЗОВ В TELEGRAM</span>
+          </button>
+          <div class="bunker-sub-actions">
+            <button class="btn-bunker-sub" id="btnCopyBunkerLink">Скопировать ссылку</button>
+            <button class="btn-bunker-sub" id="btnTestBunker">Проверить свой сейф</button>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Статусная плашка -->
-      <div class="status-pill" id="statusPill">
-        <span class="status-dot"></span>
-        <span class="status-text" id="statusText">ВРАЩАЙТЕ ПО ЧАСОВОЙ СТРЕЛКЕ (CW ↻)</span>
-      </div>
-    </main>
-
-    <!-- 4. CONTROLS: MIRA STYLE PRIMARY ACTION -->
-    <div class="action-footer">
-      <button class="btn-tool-reset" id="btnReset" title="Сбросить шаг" aria-label="Сбросить">
-        <svg viewBox="0 0 24 24" fill="none" class="action-icon">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" stroke-opacity="0.3"/>
-          <path d="M2.5 12C2.5 6.75 6.75 2.5 12 2.5C16.2 2.5 19.8 5.2 21 9M21 4V9H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </button>
-
-      <button class="btn-cashout-primary" id="btnCashout">
-        <div class="cashout-left">
-          <svg class="cashout-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M19 11H5C3.9 11 3 11.9 3 13V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V13C21 11.9 20.1 11 19 11Z" stroke="currentColor" stroke-width="2"/>
-            <path d="M7 11V7C7 4.2 9.2 2 12 2C14.8 2 17 4.2 17 7V11" stroke="currentColor" stroke-width="2"/>
-            <circle cx="12" cy="16.5" r="1.5" fill="currentColor"/>
-          </svg>
-          <span class="cashout-label">ЗАБРАТЬ КУШ</span>
+    <!-- =========================================================================
+         SCREEN 3: RAIDS (РЕЙДЫ СИНДИКАТОВ & ИГРОКОВ)
+         ========================================================================= -->
+    <section class="screen-view" id="screenRaids">
+      <div class="screen-scroll-wrap">
+        <div class="screen-header">
+          <div class="screen-badge">ДОСКА ЗАКАЗОВ</div>
+          <h1 class="screen-title">Рейды Синдиката</h1>
+          <p class="screen-desc">Сорви банк с чужих хранилищ. Осторожно: ложные пазы и сейсмодатчик охраны активны.</p>
         </div>
-        <span class="cashout-amount tabular-nums" id="cashoutAmount">$1,500 SAFE</span>
-      </button>
-    </div>
+
+        <div class="raids-list" id="raidsList">
+          <!-- Генерируется динамически через game.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SCREEN 4: SETTINGS (ОПЦИИ / ПРОФИЛЬ)
+         ========================================================================= -->
+    <section class="screen-view" id="screenSettings">
+      <div class="screen-scroll-wrap">
+        <div class="screen-header">
+          <div class="screen-badge">ПРОФИЛЬ АГЕНТА</div>
+          <h1 class="screen-title">Опции</h1>
+        </div>
+
+        <!-- Карточка профиля -->
+        <div class="profile-card">
+          <div class="profile-avatar" id="profileAvatar">
+            <span>S</span>
+          </div>
+          <div class="profile-info">
+            <div class="profile-name" id="profileName">Ghost Operative</div>
+            <div class="profile-sub" id="profileSub">ID: 84920412 • Rank S</div>
+          </div>
+          <div class="profile-balance">
+            <span class="prof-bal-lbl">БАЛАНС</span>
+            <span class="prof-bal-val tabular-nums" id="profileBalance">$24,500</span>
+          </div>
+        </div>
+
+        <!-- Переключатели параметров -->
+        <div class="settings-group">
+          <div class="setting-item">
+            <div class="setting-text">
+              <span class="setting-title">Тактильная отдача (Haptics)</span>
+              <span class="setting-desc">Виброотклик штифтов при нащупывании</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleHaptic" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <span class="setting-title">Процедурный звук (Web Audio)</span>
+              <span class="setting-desc">Синтез щелчков храповика и резонанса</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleSound" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-text">
+              <span class="setting-title">Сейсмодатчик (Noise Meter)</span>
+              <span class="setting-desc">Сирена при резких рывках диска</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleNoise" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Тема оформления сейфа -->
+        <div class="settings-group">
+          <div class="setting-group-title">ОБЛИК СЕЙФА</div>
+          <div class="theme-picker">
+            <div class="theme-chip active" data-theme="obsidian">Cyber Obsidian</div>
+            <div class="theme-chip" data-theme="gold">Syndicate Gold</div>
+            <div class="theme-chip" data-theme="emerald">Matrix Neon</div>
+          </div>
+        </div>
+
+        <!-- Подсказка по взлому -->
+        <div class="guide-card">
+          <div class="guide-title">
+            <svg class="guide-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            ИНСТРУКЦИЯ ВЗЛОМЩИКА
+          </div>
+          <ul class="guide-list">
+            <li>Вращайте диск аккуратно. Быстрое вращение глушит резонанс штифта и повышает шум.</li>
+            <li>При нащупывании истинного штифта игла светится янтарным и вибрирует двойным импульсом.</li>
+            <li>Ложный паз издает сухой щелчок без глубокого баса — это ловушка!</li>
+            <li>Удерживайте диск на истинном штифте 0.4 сек для срыва сувальды.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <!-- 5. NATIVE TELEGRAM DOCK TAB BAR (СТИЛЬ MIRA) -->
     <nav class="tg-tab-bar">
-      <div class="tab-item active" id="tabHeist">
+      <div class="tab-item active" id="tabHeist" data-target="screenHeist">
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
@@ -213,7 +441,7 @@
         <span class="tab-title">Взлом</span>
       </div>
 
-      <div class="tab-item" id="tabBunker">
+      <div class="tab-item" id="tabBunker" data-target="screenBunker">
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <path d="M12 3L3 7.5V13.5C3 18.5 7 21 12 22C17 21 21 18.5 21 13.5V7.5L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -223,7 +451,7 @@
         <span class="tab-title">Бункер</span>
       </div>
 
-      <div class="tab-item" id="tabRaids">
+      <div class="tab-item" id="tabRaids" data-target="screenRaids">
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <path d="M17 21V19C17 16.8 15.2 15 13 15H7C4.8 15 3 16.8 3 19V21" stroke="currentColor" stroke-width="2"/>
@@ -235,7 +463,7 @@
         <span class="tab-title">Рейды</span>
       </div>
 
-      <div class="tab-item" id="tabSettings">
+      <div class="tab-item" id="tabSettings" data-target="screenSettings">
         <div class="tab-icon-wrap">
           <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -271,10 +499,22 @@
 
         <div class="modal-actions">
           <button class="btn-modal-primary" id="btnModalRestart">ИГРАТЬ СНОВА</button>
-          <button class="btn-modal-secondary" id="btnModalShare">ПОДЕЛИТЬСЯ РЕКОРДОМ</button>
+          <button class="btn-modal-story" id="btnModalStory">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7V17M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            ОПУБЛИКОВАТЬ В STORY
+          </button>
+          <button class="btn-modal-secondary" id="btnModalShare">ОТПРАВИТЬ В ЧАТ</button>
         </div>
       </div>
     </div>
+
+    <!-- NATIVE TELEGRAM TOAST -->
+    <div class="tg-toast" id="tgToast">
+      <span id="toastMsg">Успешно скопировано</span>
+    </div>
+
+    <!-- Offscreen Canvas для Stories -->
+    <canvas id="storyCanvas" width="1080" height="1920" style="display: none;"></canvas>
 
   </div>
 

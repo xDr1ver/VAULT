@@ -35,6 +35,18 @@ class SafeDial {
     this.progressBarEl = document.getElementById('holdRingFill');
     this.CIRCUMFERENCE = 2 * Math.PI * 43; // 270.17
 
+    // Кинематика и магнитная доводка
+    this.springK = 0.16;
+    this.springDamping = 0.74;
+    this.snapThreshold = 1.6; // Градусы
+    this.hapticVelocityCutoff = 10.0; // Порог скорости для троттлинга вибро
+
+    // Механика шума (Noise Meter) и ложных пазов
+    this.noiseLevel = 0;
+    this.falseGates = [];
+    this.onNoiseChanged = options.onNoiseChanged || null;
+    this.onFalseGateTick = options.onFalseGateTick || null;
+
     // Колбэки
     this.onTick = options.onTick || null;
     this.onSweetSpotTick = options.onSweetSpotTick || null;
@@ -72,9 +84,10 @@ class SafeDial {
     this.draw();
   }
 
-  setTarget(pinNumber, direction = 'CW') {
+  setTarget(pinNumber, direction = 'CW', falseGates = []) {
     this.targetPin = pinNumber % this.TOTAL_DIVISIONS;
     this.requiredDirection = direction;
+    this.falseGates = Array.isArray(falseGates) ? falseGates.map(p => p % this.TOTAL_DIVISIONS) : [];
     this.holdStartTime = null;
     this.resetHoldRing();
   }
@@ -138,8 +151,15 @@ class SafeDial {
       this.currentDirection = -1; // CCW
     }
 
-    // Рождение искр при быстром вращении
-    if (Math.abs(delta) > 1.8) {
+    // Накопление шума при резком/быстром вращении
+    const jerk = Math.abs(delta);
+    if (jerk > 2.2) {
+      this.noiseLevel = Math.min(100, this.noiseLevel + jerk * 0.45);
+      if (this.onNoiseChanged) this.onNoiseChanged(this.noiseLevel);
+    }
+
+    // Искры при высоком трении
+    if (jerk > 2.0) {
       this.spawnSparks(2);
     }
 
@@ -184,17 +204,31 @@ class SafeDial {
         this.onAngleChanged(curVal, this.currentDirection);
       }
 
+      // Троттлинг: если скорость слишком высока, не спамим вибро
+      const isHighSpeed = Math.abs(this.angularVelocity) > this.hapticVelocityCutoff;
+
+      // 1. Проверка ложных пазов (False Gates)
+      const isFalseGate = this.falseGates.includes(curVal);
+      if (isFalseGate) {
+        if (this.onFalseGateTick) this.onFalseGateTick(curVal);
+        return;
+      }
+
+      // 2. Механика «слухового штифта»: резонанс слышен только при аккуратном вращении
       const dist = this.getDistanceToTarget();
       const isCorrectDir = (this.requiredDirection === 'CW' && this.currentDirection >= 0) ||
                            (this.requiredDirection === 'CCW' && this.currentDirection <= 0);
+      const isAuditorySlow = Math.abs(this.angularVelocity) <= 3.2;
 
-      if (dist <= this.TOLERANCE_DIVISIONS && isCorrectDir) {
+      if (dist <= this.TOLERANCE_DIVISIONS && isCorrectDir && isAuditorySlow) {
         this.needleEl?.classList.add('in-sweet-spot');
         this.spawnSparks(4);
         if (this.onSweetSpotTick) this.onSweetSpotTick(curVal);
       } else {
         this.needleEl?.classList.remove('in-sweet-spot');
-        if (this.onTick) this.onTick(curVal);
+        if (!isHighSpeed) {
+          if (this.onTick) this.onTick(curVal);
+        }
       }
     }
   }
@@ -237,12 +271,33 @@ class SafeDial {
   }
 
   animate() {
-    if (!this.isDragging && Math.abs(this.angularVelocity) > 0.05 && !this.isLocked) {
-      this.currentAngle += this.angularVelocity;
-      this.angularVelocity *= this.friction;
-      this.processTickCheck();
-    } else if (!this.isDragging) {
-      this.angularVelocity = 0;
+    // 1. Плавное затухание шума сейсмодатчика
+    if (this.noiseLevel > 0) {
+      this.noiseLevel = Math.max(0, this.noiseLevel * 0.96 - 0.12);
+      if (this.onNoiseChanged) this.onNoiseChanged(this.noiseLevel);
+    }
+
+    // 2. Инерция и магнитная доводка (Spring Snap)
+    if (!this.isDragging && !this.isLocked) {
+      if (Math.abs(this.angularVelocity) > 0.15) {
+        this.currentAngle += this.angularVelocity;
+        this.angularVelocity *= this.friction;
+        this.processTickCheck();
+      } else {
+        // Magnetic Snap к ближайшей риске
+        const degPerDiv = this.DEG_PER_DIV;
+        const nearestDivision = Math.round(this.currentAngle / degPerDiv);
+        const targetSnapAngle = nearestDivision * degPerDiv;
+        const deltaSnap = targetSnapAngle - this.currentAngle;
+
+        if (Math.abs(deltaSnap) > 0.01 && Math.abs(deltaSnap) < this.snapThreshold) {
+          const springAcc = deltaSnap * this.springK;
+          this.angularVelocity = (this.angularVelocity + springAcc) * this.springDamping;
+          this.currentAngle += this.angularVelocity;
+        } else {
+          this.angularVelocity = 0;
+        }
+      }
     }
 
     this.updateHoldProgress();
