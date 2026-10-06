@@ -7,6 +7,37 @@
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    // Мгновенная фиксация полноэкранного режима без сворачивания
+    (function initTelegramViewport() {
+      const tg = window.Telegram?.WebApp;
+      if (!tg) return;
+
+      tg.ready();
+      tg.expand();
+
+      // Bot API 8.0+: Настоящий Fullscreen (убирает шторку и полоску Telegram)
+      if (typeof tg.requestFullscreen === 'function') {
+        try { tg.requestFullscreen(); } catch (e) {}
+      }
+      if (typeof tg.disableVerticalSwipes === 'function') {
+        try { tg.disableVerticalSwipes(); } catch (e) {}
+      }
+      if (typeof tg.lockOrientation === 'function') {
+        try { tg.lockOrientation(); } catch (e) {}
+      }
+
+      // Страховка: повторный вызов при первом касании
+      const ensureFullscreen = () => {
+        tg.expand();
+        if (typeof tg.requestFullscreen === 'function') {
+          try { tg.requestFullscreen(); } catch (e) {}
+        }
+      };
+      window.addEventListener('pointerdown', ensureFullscreen, { once: true, passive: true });
+      window.addEventListener('touchstart', ensureFullscreen, { once: true, passive: true });
+    })();
+  </script>
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,15 +49,18 @@
 <body>
   <div class="app-viewport">
     
-    <!-- 1. HEADER HUD: Safe Area Compliant -->
+    <!-- 1. HEADER HUD -->
     <header class="hud-header">
       <!-- Таймер сессии -->
       <div class="hud-card timer-card">
         <span class="hud-label">ВРЕМЯ</span>
         <div class="timer-wrapper">
-          <svg class="hud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 7v5l3 3"/>
+          <!-- Cyber Chronometer SVG Icon -->
+          <svg class="hud-icon cyber-timer-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" stroke-opacity="0.3"/>
+            <path d="M12 3 A9 9 0 0 1 21 12" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 7V12L15 14" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="1.5" fill="var(--accent-cyan)"/>
           </svg>
           <span class="hud-value tabular-nums" id="sessionTimer">45.00</span>
         </div>
@@ -36,18 +70,46 @@
       <div class="hud-card tumblers-card">
         <span class="hud-label">СУВАЛЬДЫ</span>
         <div class="tumblers-group" id="tumblersGroup">
+          
+          <!-- Slot 0 -->
           <div class="tumbler-slot active" data-index="0" id="slot0">
             <span class="tumbler-dir">CW ↻</span>
-            <span class="tumbler-icon">●</span>
+            <div class="tumbler-icon">
+              <!-- Active Radar Pulse Icon -->
+              <svg class="icon-svg active-pulse" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/>
+                <circle cx="10" cy="10" r="3.5" fill="currentColor"/>
+                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/>
+              </svg>
+            </div>
           </div>
+
+          <!-- Slot 1 -->
           <div class="tumbler-slot locked" data-index="1" id="slot1">
             <span class="tumbler-dir">CCW ↺</span>
-            <span class="tumbler-icon">🔒</span>
+            <div class="tumbler-icon">
+              <!-- Cyber Padlock Icon -->
+              <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
+                <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
+              </svg>
+            </div>
           </div>
+
+          <!-- Slot 2 -->
           <div class="tumbler-slot locked" data-index="2" id="slot2">
             <span class="tumbler-dir">CW ↻</span>
-            <span class="tumbler-icon">🔒</span>
+            <div class="tumbler-icon">
+              <!-- Cyber Padlock Icon -->
+              <svg class="icon-svg" viewBox="0 0 20 20" fill="none">
+                <rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <circle cx="10" cy="12.5" r="1.2" fill="currentColor"/>
+              </svg>
+            </div>
           </div>
+
         </div>
       </div>
 
@@ -55,6 +117,12 @@
       <div class="hud-card stake-card">
         <span class="hud-label">КУШ</span>
         <div class="stake-wrapper">
+          <!-- Cyber Gold Ingot / Vault Icon -->
+          <svg class="hud-icon stake-gold-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M4 16L7 8H17L20 16H4Z" stroke="var(--accent-emerald)" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M8 8L6 16M16 8L18 16" stroke="var(--accent-emerald)" stroke-width="1.4" stroke-opacity="0.6"/>
+            <path d="M4 16L6 20H18L20 16" stroke="var(--accent-emerald)" stroke-width="1.8"/>
+          </svg>
           <span class="stake-multiplier" id="stakeMult">x1.5</span>
           <span class="hud-value tabular-nums" id="stakeAmount">$1,500</span>
         </div>
@@ -63,7 +131,7 @@
 
     <!-- 2. WORKSPACE: Natural Thumb Zone -->
     <main class="vault-workspace" id="workspace">
-      <!-- Неподвижный указатель (Стрелка-индикатор) -->
+      <!-- Неподвижный указатель (Стрелка) -->
       <div class="needle-indicator" id="needle">
         <div class="needle-head"></div>
         <div class="needle-glow"></div>
@@ -75,12 +143,17 @@
 
         <!-- Центральный керн с SVG кольцом удержания -->
         <div class="center-cap" id="centerCap">
-          <svg class="progress-ring" viewBox="0 0 92 92">
-            <circle class="ring-track" cx="46" cy="46" r="41" />
-            <circle class="ring-fill" id="holdRingFill" cx="46" cy="46" r="41" />
+          <svg class="progress-ring" viewBox="0 0 96 96">
+            <circle class="ring-track" cx="48" cy="48" r="41" />
+            <circle class="ring-fill" id="holdRingFill" cx="48" cy="48" r="41" />
           </svg>
           <div class="center-core" id="centerCore">
-            <span class="core-icon" id="coreIcon">●</span>
+            <!-- Biometric / Optical Targeting Icon -->
+            <svg class="biometric-icon" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 2V5M12 19V22M2 12H5M19 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
           </div>
         </div>
       </div>
@@ -92,17 +165,27 @@
       </div>
     </main>
 
-    <!-- 3. FOOTER CONTROLS: One-Hand Action Zone -->
+    <!-- 3. FOOTER CONTROLS -->
     <footer class="action-footer">
       <button class="btn-tool-reset" id="btnReset" title="Сбросить текущий шаг" aria-label="Сбросить">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-          <path d="M3 3v5h5"/>
+        <!-- Mechanical Rewind Lever SVG -->
+        <svg viewBox="0 0 24 24" fill="none" class="action-icon">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" stroke-opacity="0.3"/>
+          <path d="M2.5 12C2.5 6.75 6.75 2.5 12 2.5C16.2 2.5 19.8 5.2 21 9M21 4V9H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
       </button>
 
       <button class="btn-cashout-primary" id="btnCashout">
-        <span class="cashout-label">ЗАБРАТЬ КУШ</span>
+        <div class="cashout-left">
+          <!-- Cyber Vault Vault Key SVG -->
+          <svg class="cashout-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M19 11H5C3.9 11 3 11.9 3 13V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V13C21 11.9 20.1 11 19 11Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M7 11V7C7 4.2 9.2 2 12 2C14.8 2 17 4.2 17 7V11" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="16.5" r="1.5" fill="currentColor"/>
+          </svg>
+          <span class="cashout-label">ЗАБРАТЬ КУШ</span>
+        </div>
         <span class="cashout-amount tabular-nums" id="cashoutAmount">$1,500 SAFE</span>
       </button>
     </footer>

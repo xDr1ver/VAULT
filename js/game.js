@@ -106,6 +106,12 @@ class VaultGame {
     const dirText = tier.dir === 'CW' ? 'ПО ЧАСОВОЙ СТРЕЛКЕ (CW ↻)' : 'ПРОТИВ ЧАСОВОЙ (CCW ↺)';
     this.updateStatusText(`ВРАЩАЙТЕ ${dirText}`, 'var(--accent-cyan)');
 
+    const SVG_ICONS = {
+      completed: `<svg class="icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 10.5L8 14.5L16 6.5" stroke="var(--accent-emerald)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      active: `<svg class="icon-svg active-pulse" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/><circle cx="10" cy="10" r="3.5" fill="currentColor"/><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/></svg>`,
+      locked: `<svg class="icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="8" width="10" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 8V5.5C7 3.8 8.3 2.5 10 2.5C11.7 2.5 13 3.8 13 5.5V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="12.5" r="1.2" fill="currentColor"/></svg>`
+    };
+
     // Обновление слотов сувальд в HUD
     for (let i = 0; i < this.totalSteps; i++) {
       const slot = document.getElementById(`slot${i}`);
@@ -114,13 +120,13 @@ class VaultGame {
 
       if (i < this.currentStep) {
         slot.classList.add('completed');
-        icon.innerText = '✓';
+        icon.innerHTML = SVG_ICONS.completed;
       } else if (i === this.currentStep) {
         slot.classList.add('active');
-        icon.innerText = '●';
+        icon.innerHTML = SVG_ICONS.active;
       } else {
         slot.classList.add('locked');
-        icon.innerText = '🔒';
+        icon.innerHTML = SVG_ICONS.locked;
       }
     }
   }

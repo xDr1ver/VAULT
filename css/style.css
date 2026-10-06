@@ -47,6 +47,8 @@ html, body {
   width: 100%;
   height: 100%;
   height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   background-color: var(--bg-void);
   color: var(--text-main);
@@ -156,8 +158,8 @@ html, body {
 }
 
 .tumbler-slot {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   border-radius: var(--radius-sm);
   background: #0B0E13;
   border: 1px solid var(--border-subtle);
@@ -169,12 +171,87 @@ html, body {
   font-weight: 700;
   color: var(--text-dim);
   transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+  padding: 2px;
 }
 
 .tumbler-slot .tumbler-dir {
   font-size: 7px;
   font-family: 'JetBrains Mono', monospace;
   opacity: 0.75;
+  margin-bottom: 1px;
+}
+
+.tumbler-icon {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-svg {
+  width: 100%;
+  height: 100%;
+  transition: all 0.2s ease;
+}
+
+.icon-svg.active-pulse {
+  animation: radar-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes radar-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px var(--accent-amber));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 7px var(--accent-amber));
+  }
+}
+
+.cyber-timer-icon {
+  width: 15px;
+  height: 15px;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+}
+
+.stake-gold-icon {
+  width: 15px;
+  height: 15px;
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.6));
+}
+
+.biometric-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-cyan);
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.7));
+  animation: biometric-spin 12s linear infinite;
+}
+
+@keyframes biometric-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.cashout-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cashout-icon {
+  width: 18px;
+  height: 18px;
+  color: #FFFFFF;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.action-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
 }
 
 .tumbler-slot.active {
